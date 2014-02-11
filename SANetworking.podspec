@@ -1,11 +1,11 @@
 Pod::Spec.new do |s|
   s.name     = 'SANetworking'
-  s.version  = '1.3.3'
+  s.version  = '1.3.3.samba'
   s.license  = 'MIT'
-  s.summary  = 'A delightful iOS and OS X networking framework.'
-  s.homepage = 'https://github.com/AFNetworking/AFNetworking'
-  s.authors  = { 'Mattt Thompson' => 'm@mattt.me', 'Scott Raymond' => 'sco@gowalla.com' }
-  s.source   = { :git => 'https://github.com/FlingoMobile/SANetworking.git', :tag => '1.3.3' }
+  s.summary  = 'Renamed AFNetworking to SANetworking.'
+  s.homepage = 'https://github.com/FlingoMobile/SANetworking'
+  s.authors  = { 'Allen Schober' => 'allen@samba.tv' }
+  s.source   = { :git => 'https://github.com/FlingoMobile/SANetworking.git', :tag => '1.3.3.samba' }
   s.source_files = 'SANetworking'
   s.requires_arc = true
 
