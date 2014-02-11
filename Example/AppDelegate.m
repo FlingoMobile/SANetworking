@@ -25,7 +25,7 @@
 #if __IPHONE_OS_VERSION_MIN_REQUIRED
     #import "GlobalTimelineViewController.h"
 
-    #import "AFNetworkActivityIndicatorManager.h"
+    #import "SANetworkActivityIndicatorManager.h"
 
     @implementation AppDelegate
     @synthesize window = _window;
@@ -37,7 +37,7 @@
         NSURLCache *URLCache = [[NSURLCache alloc] initWithMemoryCapacity:4 * 1024 * 1024 diskCapacity:20 * 1024 * 1024 diskPath:nil];
         [NSURLCache setSharedURLCache:URLCache];
             
-        [[AFNetworkActivityIndicatorManager sharedManager] setEnabled:YES];
+        [[SANetworkActivityIndicatorManager sharedManager] setEnabled:YES];
         
         UITableViewController *viewController = [[GlobalTimelineViewController alloc] initWithStyle:UITableViewStylePlain];
         self.navigationController = [[UINavigationController alloc] initWithRootViewController:viewController];

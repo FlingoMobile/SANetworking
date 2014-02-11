@@ -21,7 +21,7 @@
 // THE SOFTWARE.
 
 #import "User.h"
-#import "AFImageRequestOperation.h"
+#import "SAImageRequestOperation.h"
 
 NSString * const kUserProfileImageDidLoadNotification = @"com.alamofire.user.profile-image.loaded";
 
@@ -34,7 +34,7 @@ NSString * const kUserProfileImageDidLoadNotification = @"com.alamofire.user.pro
 @implementation User {
 @private
     NSString *_avatarImageURLString;
-    AFImageRequestOperation *_avatarImageRequestOperation;
+    SAImageRequestOperation *_avatarImageRequestOperation;
 }
 
 @synthesize userID = _userID;
@@ -74,7 +74,7 @@ NSString * const kUserProfileImageDidLoadNotification = @"com.alamofire.user.pro
 
 - (NSImage *)profileImage {
 	if (!_profileImage && !_avatarImageRequestOperation) {
-		_avatarImageRequestOperation = [AFImageRequestOperation imageRequestOperationWithRequest:[NSURLRequest requestWithURL:self.avatarImageURL] success:^(NSImage *image) {
+		_avatarImageRequestOperation = [SAImageRequestOperation imageRequestOperationWithRequest:[NSURLRequest requestWithURL:self.avatarImageURL] success:^(NSImage *image) {
 			self.profileImage = image;
             
 			_avatarImageRequestOperation = nil;

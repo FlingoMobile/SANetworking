@@ -25,7 +25,7 @@
 #import "Post.h"
 #import "User.h"
 
-#import "UIImageView+AFNetworking.h"
+#import "UIImageView+SANetworking.h"
 
 @implementation PostTableViewCell {
 @private

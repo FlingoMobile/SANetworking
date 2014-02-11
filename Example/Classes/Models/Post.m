@@ -23,7 +23,7 @@
 #import "Post.h"
 #import "User.h"
 
-#import "AFAppDotNetAPIClient.h"
+#import "SAAppDotNetAPIClient.h"
 
 @implementation Post
 @synthesize postID = _postID;
@@ -47,7 +47,7 @@
 #pragma mark -
 
 + (void)globalTimelinePostsWithBlock:(void (^)(NSArray *posts, NSError *error))block {
-    [[AFAppDotNetAPIClient sharedClient] getPath:@"stream/0/posts/stream/global" parameters:nil success:^(AFHTTPRequestOperation *operation, id JSON) {
+    [[SAAppDotNetAPIClient sharedClient] getPath:@"stream/0/posts/stream/global" parameters:nil success:^(SAHTTPRequestOperation *operation, id JSON) {
         NSArray *postsFromResponse = [JSON valueForKeyPath:@"data"];
         NSMutableArray *mutablePosts = [NSMutableArray arrayWithCapacity:[postsFromResponse count]];
         for (NSDictionary *attributes in postsFromResponse) {
@@ -58,7 +58,7 @@
         if (block) {
             block([NSArray arrayWithArray:mutablePosts], nil);
         }
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+    } failure:^(SAHTTPRequestOperation *operation, NSError *error) {
         if (block) {
             block([NSArray array], error);
         }
