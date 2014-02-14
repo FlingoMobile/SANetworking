@@ -46,40 +46,66 @@ static UIImage * AFInflatedImageFromResponseWithDataAtScale(NSHTTPURLResponse *r
         return nil;
     }
 
-    UIImage *image = AFImageWithDataAtScale(data, scale);
-    if (image.images) {
-        return image;
-    }
-    
-    CGImageRef imageRef = nil;
+    CGImageRef imageRef = NULL;
     CGDataProviderRef dataProvider = CGDataProviderCreateWithCFData((__bridge CFDataRef)data);
 
     if ([response.MIMEType isEqualToString:@"image/png"]) {
         imageRef = CGImageCreateWithPNGDataProvider(dataProvider,  NULL, true, kCGRenderingIntentDefault);
     } else if ([response.MIMEType isEqualToString:@"image/jpeg"]) {
         imageRef = CGImageCreateWithJPEGDataProvider(dataProvider, NULL, true, kCGRenderingIntentDefault);
-    }
-    
-    if (!imageRef) {
-        imageRef = CGImageCreateCopy([image CGImage]);
-
-        if (!imageRef) {
-            CGDataProviderRelease(dataProvider);
-            return image;
+        
+        // CGImageCreateWithJPEGDataProvider does not properly handle CMKY, so if so, fall back to `AFImageWithDataAtScale`
+        
+        if (imageRef) {
+            CGColorSpaceRef   imageColorSpace      = CGImageGetColorSpace(imageRef);
+            CGColorSpaceModel imageColorSpaceModel = CGColorSpaceGetModel(imageColorSpace);
+            if (imageColorSpaceModel == kCGColorSpaceModelCMYK) {
+                CGImageRelease(imageRef);
+                imageRef = NULL;
+            }
         }
     }
-
+    
     CGDataProviderRelease(dataProvider);
-
-    size_t width = CGImageGetWidth(imageRef);
-    size_t height = CGImageGetHeight(imageRef);
+    
+    UIImage *image;
+    
+    if (!imageRef) {
+        image = AFImageWithDataAtScale(data, scale);
+        
+        if (image.images || !image) {
+            return image;
+        }
+        
+        imageRef = CGImageCreateCopy([image CGImage]);
+        
+        if (!imageRef) {
+            return nil;
+        }
+    }
+    
+    size_t width            = CGImageGetWidth(imageRef);
+    size_t height           = CGImageGetHeight(imageRef);
     size_t bitsPerComponent = CGImageGetBitsPerComponent(imageRef);
-    size_t bytesPerRow = 0; // CGImageGetBytesPerRow() calculates incorrectly in iOS 5.0, so defer to CGBitmapContextCreate()
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(imageRef);
-
-    if (CGColorSpaceGetNumberOfComponents(colorSpace) == 3) {
-        int alpha = (bitmapInfo & kCGBitmapAlphaInfoMask);
+    
+    // if image is larger than 1mb or if using more than 8 bpc, then don't inflate
+    
+    if (width * height > 1024 * 1024 || bitsPerComponent > 8)
+    {
+        if (!image)
+            image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:image.imageOrientation];
+        
+        CGImageRelease(imageRef);
+        
+        return image;
+    }
+    
+    CGColorSpaceRef   colorSpace      = CGColorSpaceCreateDeviceRGB();
+    CGColorSpaceModel colorSpaceModel = CGColorSpaceGetModel(colorSpace);
+    CGBitmapInfo      bitmapInfo      = CGImageGetBitmapInfo(imageRef);
+    
+    if (colorSpaceModel == kCGColorSpaceModelRGB) {
+        uint32_t alpha = (bitmapInfo & kCGBitmapAlphaInfoMask);
         if (alpha == kCGImageAlphaNone) {
             bitmapInfo &= ~kCGBitmapAlphaInfoMask;
             bitmapInfo |= kCGImageAlphaNoneSkipFirst;
@@ -88,22 +114,25 @@ static UIImage * AFInflatedImageFromResponseWithDataAtScale(NSHTTPURLResponse *r
             bitmapInfo |= kCGImageAlphaPremultipliedFirst;
         }
     }
-
-    CGContextRef context = CGBitmapContextCreate(NULL, width, height, bitsPerComponent, bytesPerRow, colorSpace, bitmapInfo);
-
+    
+    CGContextRef context = CGBitmapContextCreate(NULL, width, height, bitsPerComponent, 0, colorSpace, bitmapInfo);
+    
     CGColorSpaceRelease(colorSpace);
-
+    
     if (!context) {
+        if (!image)
+            image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:image.imageOrientation];
+        
         CGImageRelease(imageRef);
-
+        
         return image;
     }
-
+    
     CGRect rect = CGRectMake(0.0f, 0.0f, width, height);
     CGContextDrawImage(context, rect, imageRef);
     CGImageRef inflatedImageRef = CGBitmapContextCreateImage(context);
     CGContextRelease(context);
-
+    
     UIImage *inflatedImage = [[UIImage alloc] initWithCGImage:inflatedImageRef scale:scale orientation:image.imageOrientation];
     CGImageRelease(inflatedImageRef);
     CGImageRelease(imageRef);
