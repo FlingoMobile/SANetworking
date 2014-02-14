@@ -52,8 +52,8 @@ NSString * const SANetworkingErrorDomain = @"SANetworkingErrorDomain";
 NSString * const SANetworkingOperationFailingURLRequestErrorKey = @"SANetworkingOperationFailingURLRequestErrorKey";
 NSString * const SANetworkingOperationFailingURLResponseErrorKey = @"SANetworkingOperationFailingURLResponseErrorKey";
 
-NSString * const SANetworkingOperationDidStartNotification = @"com.alamofire.networking.operation.start";
-NSString * const SANetworkingOperationDidFinishNotification = @"com.alamofire.networking.operation.finish";
+NSString * const SANetworkingOperationDidStartNotification = @"tv.samba.networking.operation.start";
+NSString * const SANetworkingOperationDidFinishNotification = @"tv.samba.networking.operation.finish";
 
 typedef void (^SAURLConnectionOperationProgressBlock)(NSUInteger bytes, long long totalBytes, long long totalBytesExpected);
 typedef void (^SAURLConnectionOperationAuthenticationChallengeBlock)(NSURLConnection *connection, NSURLAuthenticationChallenge *challenge);
